@@ -1,0 +1,15 @@
+{
+  "name": "looperloop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "test:smoke": "bun test tests/smoke",
+    "driver": "bun run driver/main.ts",
+    "mcp": "bun run mcp/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

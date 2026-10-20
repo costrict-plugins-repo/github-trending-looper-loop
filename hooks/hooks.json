@@ -1,0 +1,15 @@
+{
+  "description": "Surface completed looperloop runs into the next Claude prompt",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run \"${CLAUDE_PLUGIN_ROOT}/hooks/on-prompt.ts\""
+          }
+        ]
+      }
+    ]
+  }
+}

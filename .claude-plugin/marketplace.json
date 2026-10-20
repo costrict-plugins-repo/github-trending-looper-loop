@@ -1,0 +1,14 @@
+{
+  "name": "looperloop",
+  "owner": {
+    "name": "mike"
+  },
+  "plugins": [
+    {
+      "name": "looperloop",
+      "source": "./",
+      "description": "Detached iterative coding loop with fresh worker iterations and external observers.",
+      "version": "0.1.0"
+    }
+  ]
+}

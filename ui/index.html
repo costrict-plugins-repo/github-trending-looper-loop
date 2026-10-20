@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <title>looperloop</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><circle cx='32' cy='32' r='22' fill='none' stroke='%23ff6b1a' stroke-width='6'/><path d='M37 8 L18 36 H30 L25 56 L46 26 H34 Z' fill='%23ff6b1a' stroke='%230a0a0a' stroke-width='2.5' stroke-linejoin='round'/></svg>"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0a0a;
+        --surface: #141414;
+        --surface-2: #1c1c1c;
+        --border: #2a2a2a;
+        --text: #fafafa;
+        --muted: #737373;
+        --accent: #ff6b1a;
+        --accent-dim: #7a3210;
+        --danger: #ef4444;
+        --ok: #22c55e;
+        --warn: #eab308;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        padding: 18px 16px 16px;
+        background: radial-gradient(1200px 600px at 50% -10%, #1f0d04 0%, var(--bg) 55%);
+        color: var(--text);
+        font-size: 13px;
+        letter-spacing: 0.01em;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      [hidden] { display: none !important; }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .logo { width: 22px; height: 22px; flex: 0 0 22px; }
+      h1 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      h1 strong {
+        color: var(--text);
+        font-weight: 700;
+        text-transform: none;
+        margin-left: 6px;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 12px;
+        letter-spacing: 0;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      main > .card,
+      main > .warnings,
+      main > button {
+        flex: 0 0 auto;
+      }
+      .card {
+        background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .iter-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .iter-card .label {
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .iter-card .value {
+        margin-top: 2px;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .iter-card .value .total { color: var(--muted); font-weight: 400; }
+      .iter-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+      }
+      .view-toggle {
+        display: inline-grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #080808;
+      }
+      .view-toggle button {
+        min-width: 76px;
+        height: 30px;
+        border: 0;
+        border-right: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .view-toggle button:last-child { border-right: 0; }
+      .view-toggle button[aria-selected="true"] {
+        background: var(--accent);
+        color: #0a0a0a;
+      }
+      .view-toggle button:focus-visible {
+        outline: 2px solid #ffe2cc;
+        outline-offset: -2px;
+      }
+      .progress {
+        margin-top: 10px;
+        height: 4px;
+        border-radius: 2px;
+        background: #000;
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+      .progress > div {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+        transition: width 240ms ease;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #000;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+      }
+      .pill .dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .pill[data-tone="run"]  { color: var(--accent); border-color: var(--accent-dim); }
+      .pill[data-tone="run"]  .dot { animation: pulse 1.4s ease-out infinite; }
+      .pill[data-tone="ok"]   { color: var(--ok);     border-color: #14532d; }
+      .pill[data-tone="warn"] { color: var(--warn);   border-color: #713f12; }
+      .pill[data-tone="bad"]  { color: var(--danger); border-color: #7f1d1d; }
+      @keyframes pulse {
+        0%   { box-shadow: 0 0 0 0   rgba(255,107,26,0.55); }
+        70%  { box-shadow: 0 0 0 8px rgba(255,107,26,0);    }
+        100% { box-shadow: 0 0 0 0   rgba(255,107,26,0);    }
+      }
+      .warnings {
+        margin: 0;
+        padding: 10px 12px;
+        background: #000;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: #fda4af;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 11px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        max-height: 220px;
+        overflow: auto;
+      }
+      .warnings:empty { display: none; }
+      .activity {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0 10px 0 0;
+        list-style: none;
+        min-height: 0;
+        overflow: auto;
+        scrollbar-gutter: stable;
+      }
+      #activityCard {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+      }
+      #activityCard:not([hidden]) {
+        display: flex;
+        flex-direction: column;
+      }
+      #canvasCard {
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+      }
+      #canvasCard:not([hidden]) {
+        display: flex;
+      }
+      .canvas-shell {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 260px;
+        background:
+          linear-gradient(90deg, rgba(255,107,26,0.04) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(255,107,26,0.04) 1px, transparent 1px),
+          #0a0a0a;
+        background-size: 32px 32px;
+      }
+      #graphCanvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 260px;
+        cursor: grab;
+        touch-action: none;
+      }
+      #graphCanvas:active { cursor: grabbing; }
+      .canvas-reset {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        height: 30px;
+        border-radius: 7px;
+        border: 1px solid var(--accent-dim);
+        background: rgba(10, 10, 10, 0.84);
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .canvas-tooltip {
+        position: absolute;
+        z-index: 5;
+        max-width: min(360px, calc(100% - 24px));
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: rgba(8, 8, 8, 0.94);
+        color: var(--muted);
+        font: 11px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        pointer-events: none;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      }
+      .canvas-tooltip strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 12px;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .activity:empty { display: none; }
+      .activity li {
+        display: grid;
+        gap: 3px;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .activity li[data-live="true"] {
+        color: var(--accent);
+      }
+      .activity li:last-child { border-bottom: none; }
+      .activity .activity-title {
+        font-weight: 650;
+      }
+      .activity .activity-detail {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .activity .activity-stage {
+        color: var(--muted);
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 11px;
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+      .activity .activity-summary {
+        color: var(--muted);
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+        min-width: 0;
+      }
+      .activity li[data-live="true"] .activity-summary,
+      .activity li[data-live="true"] .activity-stage {
+        color: #d6a083;
+      }
+      .activity li[data-live="true"] .activity-stage {
+        background: linear-gradient(110deg, #d6a083 0%, #d6a083 38%, #ffe2cc 50%, #d6a083 62%, #d6a083 100%);
+        background-size: 320% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: shimmer 2.8s ease-in-out infinite;
+      }
+      @keyframes shimmer {
+        from { background-position: 120% 0; }
+        to   { background-position: -20% 0; }
+      }
+      button#stop {
+        margin-top: 4px;
+        flex: 0 0 auto;
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid var(--accent-dim);
+        background: linear-gradient(180deg, #1a0a02, #0e0501);
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 120ms ease;
+      }
+      button#stop:hover {
+        background: var(--accent);
+        color: #0a0a0a;
+        border-color: var(--accent);
+      }
+      button#stop:active { transform: translateY(1px); }
+      button#stop:disabled { opacity: 0.4; cursor: not-allowed; }
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      @media (max-width: 360px) {
+        .iter-card { align-items: flex-start; }
+        .iter-actions { flex-direction: column-reverse; align-items: flex-end; gap: 8px; }
+        .view-toggle button { min-width: 64px; }
+        .activity .activity-detail {
+          display: grid;
+          gap: 3px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="22" fill="none" stroke="#ff6b1a" stroke-width="6"/>
+        <path d="M37 8 L18 36 H30 L25 56 L46 26 H34 Z" fill="#ff6b1a" stroke="#0a0a0a" stroke-width="2.5" stroke-linejoin="round"/>
+      </svg>
+      <h1>looperloop <strong id="loopId">-</strong></h1>
+    </header>
+
+    <main>
+      <section class="card iter-card">
+        <div>
+          <div class="label">Iteration</div>
+          <div class="value"><span id="iterCurrent">0</span><span class="total"> / <span id="iterTotal">-</span></span></div>
+        </div>
+        <div class="iter-actions">
+          <div class="view-toggle" role="tablist" aria-label="Preview view">
+            <button id="canvasTab" type="button" role="tab" aria-controls="canvasCard" aria-selected="true">Canvas</button>
+            <button id="activityTab" type="button" role="tab" aria-controls="activityCard" aria-selected="false">Activity</button>
+          </div>
+          <span class="pill" id="statusPill"><span class="dot"></span><span id="status">idle</span></span>
+        </div>
+      </section>
+
+      <section class="card" id="activityCard" hidden>
+        <ul class="activity" id="activity"></ul>
+      </section>
+
+      <section class="card" id="canvasCard" hidden>
+        <div class="canvas-shell">
+          <canvas id="graphCanvas" aria-label="Loop branch graph"></canvas>
+          <button class="canvas-reset" id="canvasReset" type="button">Reset</button>
+          <div class="canvas-tooltip" id="canvasTooltip" hidden></div>
+          <table class="sr-only" id="graphTable"></table>
+        </div>
+      </section>
+
+      <pre class="warnings" id="warnings"></pre>
+      <button id="stop" type="button">Stop loop</button>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

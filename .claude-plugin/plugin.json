@@ -1,0 +1,8 @@
+{
+  "name": "looperloop",
+  "version": "0.1.0",
+  "description": "Detached iterative coding loop with fresh worker iterations and external observers.",
+  "author": {
+    "name": "looperloop"
+  }
+}

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Bun / TypeScript
+.bun/
+*.tsbuildinfo
+
+# Build and test output
+dist/
+build/
+out/
+coverage/
+.test-dist/
+test-results/
+playwright-report/
+
+# Runtime loop output
+looper/
+loop-runs/
+*.log
+*.tmp
+
+# Local config / secrets
+.env
+.env.*
+!.env.example
+.mcp.local.json
+
+# Local Claude / Codex state
+.claude/
+.codex/
+.claude-worktrees/
+.cw/
+
+# Local databases / caches
+*.db
+*.sqlite
+*.sqlite3
+cache/
+tmp/
+temp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
